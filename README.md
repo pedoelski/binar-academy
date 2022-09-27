@@ -1,4 +1,2 @@
-# Challenge 5
+# Binar Chapter 6 Challenge
 
-Binar Academy Chapter 5 Submission
-by Asep Rizki

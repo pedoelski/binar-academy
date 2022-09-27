@@ -1,38 +1,53 @@
-const createError = require("http-errors");
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-const indexRouter = require("./routes/index");
-const gamesRouter = require("./routes/games");
-const loginRouter = require("./routes/login");
-const apiRouter = require("./routes/api");
+const express = require('express')
+const app = express()
+const port = process.env.port || 8000;
+const Sequelize = require('sequelize')
 
-const app = express();
+const userController = require('./controllers/usercontroller');
+const method = require('./controllers/method');
 
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
 
-app.use(logger("dev"));
+// Setting template engine EJS
+app.set('view engine', 'ejs')
+
+//set support body 
+app.use(express.urlencoded({
+    extended: false
+}));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/games", gamesRouter);
-app.use("/login", loginRouter);
-app.use("/api", apiRouter);
+//important to link css and other static file that in public folder
+app.use(express.static('public'));
 
-app.use((req, res, next) => {
-  next(createError(404));
-});
 
-app.use((err, req, res, next) => {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-  res.status(err.status || 500);
-  res.render("error");
-});
 
-module.exports = app;
+//INDEX OR START
+app.get('/', userController.homeRender)
+
+//GAMEPLAY
+app.get('/game', userController.gameRender)
+
+
+//LOGIN PAGE will redirect /game/:username
+app.get('/login', userController.loginGet)
+app.post('/login', userController.loginPost)
+
+
+//REGISTER PAGE or Create Method here
+app.get('/register', userController.registerGet)
+app.post('/register', userController.registerPost)
+
+//Read Method here
+app.get('/user_list', method.user_list)
+
+//Update Method here
+app.get('/user_update', method.updateGet)
+app.post('/user_update', method.updateInfo) 
+
+//Delete Method here
+app.get('/user_delete', method.deleteGet)
+app.post('/user_delete', method.deleteDestroy)
+
+app.listen(port, () => {
+    console.log(`Go to http://localhost:${port}`)
+})
